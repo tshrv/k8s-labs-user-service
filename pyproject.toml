@@ -27,6 +27,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.8.0",
     "testcontainers[postgres]>=0.7.0",
+    "locust>=2.32.0",
 ]
 
 [tool.pytest.ini_options]

@@ -46,6 +46,19 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  locust:
+    image: locustio/locust:latest
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --host http://app:8000
+    depends_on:
+      app:
+        condition: service_started
+    profiles:
+      - load-test
+
 volumes:
   postgres_data:
   pgadmin_data:
