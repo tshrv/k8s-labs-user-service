@@ -1,0 +1,89 @@
+@baseUrl = http://localhost:8000/api/v1
+
+### ─── Create User ────────────────────────────────────────────────────────────
+# @name createUser
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "username": "alice",
+  "full_name": "Alice Example",
+  "password": "supersecret1"
+}
+
+### ─── List Users (default pagination) ──────────────────────────────────────
+GET {{baseUrl}}/users
+
+### ─── List Users (custom pagination) ───────────────────────────────────────
+GET {{baseUrl}}/users?page=1&size=5
+
+### ─── Get User by ID ────────────────────────────────────────────────────────
+# Uses the ID captured from the createUser response above.
+# Run "Create User" first, then click "Send Request" here.
+@createdUserId = {{createUser.response.body.$.id}}
+
+GET {{baseUrl}}/users/{{createdUserId}}
+
+### ─── Update User (partial) ─────────────────────────────────────────────────
+PATCH {{baseUrl}}/users/{{createdUserId}}
+Content-Type: application/json
+
+{
+  "full_name": "Alice Updated"
+}
+
+### ─── Update User — change password ────────────────────────────────────────
+PATCH {{baseUrl}}/users/{{createdUserId}}
+Content-Type: application/json
+
+{
+  "password": "newpassword99"
+}
+
+### ─── Delete User ───────────────────────────────────────────────────────────
+DELETE {{baseUrl}}/users/{{createdUserId}}
+
+### ─── Get User after deletion (expect 404) ──────────────────────────────────
+GET {{baseUrl}}/users/{{createdUserId}}
+
+### ─── Create second user ────────────────────────────────────────────────────
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "bob@example.com",
+  "username": "bob",
+  "full_name": "Bob Example",
+  "password": "bobspassword1"
+}
+
+### ─── Duplicate email (expect 409) ─────────────────────────────────────────
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "username": "alice_dupe",
+  "password": "somepassword1"
+}
+
+### ─── Validation error — short password (expect 422) ───────────────────────
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "invalid@example.com",
+  "username": "testuser",
+  "password": "short"
+}
+
+### ─── Validation error — bad username characters (expect 422) ───────────────
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "invalid@example.com",
+  "username": "bad username!",
+  "password": "validpassword1"
+}

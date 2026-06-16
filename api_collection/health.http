@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:8000/api/v1
+
+### Liveness probe — no DB dependency
+GET {{baseUrl}}/health
+
+### Readiness probe — verifies DB connectivity
+GET {{baseUrl}}/health/db
