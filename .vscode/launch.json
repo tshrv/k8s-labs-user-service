@@ -12,7 +12,7 @@
             "python": "${workspaceFolder}/.venv/bin/python",
             "module": "uvicorn",
             "args": [
-                "main:app",
+                "app.main:app",
                 "--reload",
                 "--reload-dir", "app"
             ],

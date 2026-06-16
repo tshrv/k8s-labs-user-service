@@ -10,7 +10,7 @@ from testcontainers.postgres import PostgresContainer
 
 from app.config import get_settings
 from app.db.session import get_db_session
-from app.main import create_app
+from app.main import app
 
 
 @pytest.fixture(scope="session")
@@ -53,7 +53,6 @@ async def db_session(test_engine) -> AsyncIterator[AsyncSession]:
 
 @pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
-    app = create_app()
     get_settings.cache_clear()
     app.dependency_overrides[get_db_session] = lambda: db_session
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:

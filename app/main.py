@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import structlog
@@ -16,7 +16,7 @@ logger = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     settings = get_settings()
     configure_logging(settings.log_level, settings.environment)
     logger.info("starting_up", app=settings.app_name, env=settings.environment)
@@ -25,30 +25,27 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("shut_down", app=settings.app_name)
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+settings = get_settings()
 
-    app = FastAPI(
-        title=settings.app_name,
-        version=settings.app_version,
-        docs_url="/docs" if settings.environment != "production" else None,
-        redoc_url="/redoc" if settings.environment != "production" else None,
-        openapi_url="/openapi.json" if settings.environment != "production" else None,
-        lifespan=lifespan,
-    )
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    docs_url="/docs" if settings.environment != "production" else None,
+    redoc_url="/redoc" if settings.environment != "production" else None,
+    openapi_url="/openapi.json" if settings.environment != "production" else None,
+    lifespan=lifespan,
+)
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.allowed_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    app.add_middleware(TimingMiddleware)
-    app.add_middleware(RequestIDMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(TimingMiddleware)
+app.add_middleware(RequestIDMiddleware)
 
-    app.include_router(v1_router, prefix=settings.api_v1_prefix)
+app.include_router(v1_router, prefix=settings.api_v1_prefix)
 
-    register_exception_handlers(app)
-
-    return app
+register_exception_handlers(app)
