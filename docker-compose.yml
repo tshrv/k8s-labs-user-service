@@ -52,10 +52,7 @@ services:
       - "8089:8089"
     volumes:
       - ./locust:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --host http://app:8000
-    depends_on:
-      app:
-        condition: service_started
+    command: -f /mnt/locust/locustfile.py --host http://136.68.44.58 --processes -1
     profiles:
       - load-test
 
