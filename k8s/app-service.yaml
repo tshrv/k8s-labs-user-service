@@ -8,7 +8,7 @@ metadata:
     # directly via Network Endpoint Groups instead of hopping through a NodePort.
     cloud.google.com/neg: '{"ingress": true}'
 spec:
-  type: ClusterIP # Ingress exposes this externally, so no LoadBalancer/NodePort needed here
+  type: NodePort
   selector:
     app: user-service
   ports:
