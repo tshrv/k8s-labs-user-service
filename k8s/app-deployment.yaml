@@ -7,14 +7,12 @@ metadata:
     app: user-service
     tier: api
 spec:
-  # Starting point matching the "4 pods" requirement; the HPA (hpa.yaml) takes ownership of
-  # this field at runtime and will move it between minReplicas/maxReplicas based on load.
-  replicas: 4
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0 # never drop below 4 ready pods during a rollout
+      maxUnavailable: 0 # never drop below 2 ready pods during a rollout
   selector:
     matchLabels:
       app: user-service
