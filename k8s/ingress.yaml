@@ -3,8 +3,12 @@ kind: Ingress
 metadata:
   name: user-service-ingress
   namespace: user-service
+  annotations:
+    # GKE's L7 controller (glbc) claims Ingresses by THIS annotation, not spec.ingressClassName.
+    # GKE does not register a "gce" IngressClass object, so `ingressClassName: gce` resolves to
+    # nothing and the Ingress is silently never reconciled (no address, no NEGs, no events).
+    kubernetes.io/ingress.class: "gce" # GKE's native external HTTP(S) LB controller
 spec:
-  ingressClassName: gce # GKE's native Ingress controller -> provisions an external HTTP(S) LB
   rules:
     - http:
         paths:
