@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: tshrv/k8s-labs-user-service:af87b8ce105e619f53dc579a6ceaf15dfa91d83b
+          image: tshrv/k8s-labs-user-service:latest
           # :latest is a mutable tag - without this, kubelet may reuse a stale cached image
           # and a rollout (`kubectl rollout restart`) would deploy "new" pods with old code.
           # Prefer the immutable sha/timestamp tags the CI workflow already publishes
