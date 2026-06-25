@@ -1,0 +1,39 @@
+# Schema mirrors migrations/versions/20250616_0001_create_users_table.py exactly.
+# Assumption: this cluster has no migration runner (no init container/Job running
+# `alembic upgrade head`), so this initdb script is the only schema-creation path here.
+# It only runs once, on first boot, when the PVC's data directory is empty - Postgres
+# skips /docker-entrypoint-initdb.d entirely on restarts where data already exists.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: user-service
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(26) PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        hashed_password VARCHAR(255) NOT NULL,
+        full_name VARCHAR(100),
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        is_superuser BOOLEAN NOT NULL DEFAULT false,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS ix_users_email ON users (email);
+    CREATE UNIQUE INDEX IF NOT EXISTS ix_users_username ON users (username);
+
+    -- Seed data: 8 demo users. Password hash below is a real bcrypt hash of "ChangeMe123!"
+    -- (same hashing scheme app/api/v1/endpoints/users.py uses), so these rows look and
+    -- behave exactly like rows the API itself would have created.
+    INSERT INTO users (id, email, username, hashed_password, full_name, is_active, is_superuser) VALUES
+      ('01KVZNVGRTSS6XAK205B78GQK3', 'alice@example.com', 'alice', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Alice Johnson', true, true),
+      ('01KVZNVGRTSS6XAK205B78GQK4', 'bob@example.com', 'bob', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Bob Smith', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQK5', 'carol@example.com', 'carol', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Carol Davis', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQK6', 'dave@example.com', 'dave', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Dave Wilson', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQK7', 'erin@example.com', 'erin', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Erin Brown', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQK8', 'frank@example.com', 'frank', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Frank Miller', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQK9', 'grace@example.com', 'grace', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Grace Lee', true, false),
+      ('01KVZNVGRTSS6XAK205B78GQKA', 'heidi@example.com', 'heidi', '$2b$12$OA1sqMXNRnyhmBGLd4x6BuYXdOiM3hYZIE/3fcR2.Etcp4mF09TKa', 'Heidi Clark', true, false);

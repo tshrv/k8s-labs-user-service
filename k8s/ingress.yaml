@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-service-ingress
+  namespace: user-service
+spec:
+  ingressClassName: gce # GKE's native Ingress controller -> provisions an external HTTP(S) LB
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80

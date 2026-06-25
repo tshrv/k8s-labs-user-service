@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: user-service
+data:
+  # DB connection pieces - host is the Service name (cluster DNS), never a pod IP
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "userservice"
+
+  # Non-sensitive app config (consumed by app/config.py via pydantic-settings)
+  APP_NAME: "k8s-labs-user-service"
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  API_V1_PREFIX: "/api/v1"
+  ALLOWED_ORIGINS: '["*"]'
+  DATABASE_POOL_SIZE: "10"
+  DATABASE_MAX_OVERFLOW: "20"
+  DATABASE_ECHO: "false"

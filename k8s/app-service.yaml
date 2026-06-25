@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: user-service
+  annotations:
+    # Container-native load balancing: lets the GKE Ingress controller target pod IPs
+    # directly via Network Endpoint Groups instead of hopping through a NodePort.
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP # Ingress exposes this externally, so no LoadBalancer/NodePort needed here
+  selector:
+    app: user-service
+  ports:
+    - port: 80
+      targetPort: 8000

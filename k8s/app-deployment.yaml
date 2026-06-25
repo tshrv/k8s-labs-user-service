@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: user-service
+  labels:
+    app: user-service
+    tier: api
+spec:
+  # Starting point matching the "4 pods" requirement; the HPA (hpa.yaml) takes ownership of
+  # this field at runtime and will move it between minReplicas/maxReplicas based on load.
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 # never drop below 4 ready pods during a rollout
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        tier: api
+    spec:
+      containers:
+        - name: user-service
+          image: tshrv/k8s-labs-user-service:af87b8ce105e619f53dc579a6ceaf15dfa91d83b
+          # :latest is a mutable tag - without this, kubelet may reuse a stale cached image
+          # and a rollout (`kubectl rollout restart`) would deploy "new" pods with old code.
+          # Prefer the immutable sha/timestamp tags the CI workflow already publishes
+          # (.github/workflows/docker-image.yml) for real rollout/rollback demos.
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secret
+          # Liveness only checks the process is alive (no DB dependency) - if it also probed
+          # the DB, a DB blip would get every app pod killed and restarted at once instead of
+          # just going temporarily unready, turning a recoverable DB hiccup into an outage.
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          # Readiness checks DB connectivity - pods only receive traffic once they can
+          # actually serve a request end-to-end.
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/db
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          # FinOps/cost opportunity #2: limits cap a single pod's burst so one noisy
+          # replica can't starve the other 3 app pods + Postgres sharing these e2-small nodes.
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
