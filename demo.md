@@ -11,3 +11,5 @@ kubectl get all -n user-service
 kubectl delete pod
 watch -n2 'kubectl -n user-service get hpa,pods'
 kubectl rollout restart deployment/user-service -n user-service
+gcloud container clusters get-credentials k8s-labs-cluster --zone us-central1-a --project k8s-labs-500514
+
