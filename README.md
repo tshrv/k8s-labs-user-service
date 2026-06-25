@@ -1,4 +1,4 @@
-# nagp-user-service
+# k8s-labs-user-service
 
 Production-ready FastAPI microservice for user management. Built with async SQLAlchemy + PostgreSQL, Alembic migrations, structured logging, and full integration test coverage via testcontainers.
 
@@ -18,7 +18,7 @@ Production-ready FastAPI microservice for user management. Built with async SQLA
 ## Project Structure
 
 ```
-nagp-user-service/
+k8s-labs-user-service/
 ├── main.py                        # ASGI entry point (uvicorn main:app)
 ├── app/
 │   ├── main.py                    # Application factory: create_app()

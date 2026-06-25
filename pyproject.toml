@@ -1,5 +1,5 @@
 [project]
-name = "nagp-user-service"
+name = "k8s-labs-user-service"
 version = "0.1.0"
 description = "User microservice — FastAPI + PostgreSQL"
 readme = "README.md"

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
 
     # Application
-    app_name: str = "nagp-user-service"
+    app_name: str = "k8s-labs-user-service"
     app_version: str = "0.1.0"
     environment: str = "development"
     debug: bool = False

@@ -1300,7 +1300,7 @@ wheels = [
 ]
 
 [[package]]
-name = "nagp-user-service"
+name = "k8s-labs-user-service"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
