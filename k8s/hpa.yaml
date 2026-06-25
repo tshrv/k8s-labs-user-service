@@ -1,6 +1,6 @@
-# FinOps/cost opportunity #1: scales the app tier down to 2 pods (from the 4 baseline)
-# during low-traffic periods instead of paying for 4 idle replicas around the clock, and
-# only bursts back to 4 when CPU demand actually justifies it.
+# FinOps/cost opportunity #1: idles at the 2-pod minimum during low-traffic periods instead of
+# running 4 replicas around the clock, and only bursts to the 4-pod maximum when CPU demand
+# actually justifies it.
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -20,3 +20,12 @@ spec:
         target:
           type: Utilization
           averageUtilization: 70
+  behavior:
+    # Snappier scale-down: collapse back to the minimum ~30s after load
+    # drops, instead of waiting out the default 5-minute stabilization window.
+    scaleDown:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 30
